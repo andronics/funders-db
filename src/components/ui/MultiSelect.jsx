@@ -65,9 +65,11 @@ export function MultiSelect({ label, value = [], onChange, options = [] }) {
         </span>
         <div className="flex items-center gap-1">
           {value.length > 0 && (
-            <button
-              type="button"
+            <span
+              role="button"
+              tabIndex={0}
               onClick={handleClearAll}
+              onKeyDown={(e) => e.key === 'Enter' && handleClearAll(e)}
               className="rounded p-0.5 text-brand-muted hover:bg-brand-border hover:text-white"
               title="Clear all"
             >
@@ -75,7 +77,7 @@ export function MultiSelect({ label, value = [], onChange, options = [] }) {
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
-            </button>
+            </span>
           )}
           <ChevronDownIcon className={`h-4 w-4 text-brand-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </div>
