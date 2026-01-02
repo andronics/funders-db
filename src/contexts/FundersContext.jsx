@@ -83,7 +83,7 @@ export function FundersProvider({ children }) {
         const downloadedFunders = [];
         let batch = [];
 
-        await streamJsonl('/funders.jsonl', {
+        await streamJsonl(`${import.meta.env.BASE_URL}funders.jsonl`, {
           onRecord: (record) => {
             downloadedFunders.push(record);
             batch.push(record);
