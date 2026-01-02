@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ShareIcon, CopyIcon, MailIcon, CheckIcon } from '../ui/Icons';
 
 export function ShareButton({ funderId, funderName }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
+  const buttonRef = useRef(null);
 
   // Reset copied state after delay
   useEffect(() => {
@@ -12,6 +15,17 @@ export function ShareButton({ funderId, funderName }) {
       return () => clearTimeout(timer);
     }
   }, [copied]);
+
+  // Update dropdown position when opened
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+  }, [isOpen]);
 
   const generateShareUrl = () => {
     const url = new URL(window.location.href);
@@ -59,6 +73,7 @@ export function ShareButton({ funderId, funderName }) {
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={toggleDropdown}
         className="rounded p-1.5 text-brand-muted transition-colors hover:text-brand-text"
         aria-label="Share this funder"
@@ -70,7 +85,7 @@ export function ShareButton({ funderId, funderName }) {
         )}
       </button>
 
-      {isOpen && (
+      {isOpen && createPortal(
         <>
           {/* Backdrop */}
           <div
@@ -81,8 +96,14 @@ export function ShareButton({ funderId, funderName }) {
             }}
           />
 
-          {/* Dropdown */}
-          <div className="absolute right-0 top-full z-50 mt-1 w-36 rounded-md border border-brand-border bg-brand-card py-1 shadow-lg">
+          {/* Dropdown - rendered via portal to escape overflow containers */}
+          <div
+            className="fixed z-50 w-36 rounded-md border border-brand-border bg-brand-card py-1 shadow-lg"
+            style={{
+              top: dropdownPosition.top,
+              right: dropdownPosition.right,
+            }}
+          >
             <button
               onClick={handleCopyLink}
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border"
@@ -98,7 +119,8 @@ export function ShareButton({ funderId, funderName }) {
               Email
             </button>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
