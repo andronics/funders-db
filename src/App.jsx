@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { FundersProvider, useFundersContext } from './contexts/FundersContext';
 import { SearchProvider, useSearchContext } from './contexts/SearchContext';
 import { useFunders } from './hooks/useFunders';
@@ -11,10 +11,22 @@ import { FilterPanel } from './components/search/FilterPanel';
 import { SortControls } from './components/search/SortControls';
 import { FunderList } from './components/funders/FunderList';
 import { ExportButton } from './components/export/ExportButton';
-import { SavedSearches } from './components/favorites/SavedSearches';
 
 // Read initial state from URL once at module load
 const initialUrlState = getInitialStateFromUrl();
+
+// Default filter state
+const DEFAULT_FILTERS = {
+  locations: [],
+  beneficiaries: [],
+  focus: [],
+  categories: [],
+  grantsMin: null,
+  grantsMax: null,
+  establishedMin: null,
+  establishedMax: null,
+  unsolicitedOnly: false,
+};
 
 function App() {
   return (
@@ -39,18 +51,56 @@ function FunderBrowser() {
   } = useFundersContext();
 
   const { searchTerm, setSearchTerm } = useSearchContext();
-  const [filters, setFilters] = useState(initialUrlState.filters);
+  const [filters, setFilters] = useState({
+    ...DEFAULT_FILTERS,
+    ...initialUrlState.filters,
+  });
   const [sortConfig, setSortConfig] = useState(initialUrlState.sortConfig);
 
   // Sync state to URL
   useUrlState({ searchTerm, filters, sortConfig });
 
   // Auto-show filters if any are active from URL
-  const hasUrlFilters = !!(initialUrlState.filters.location || initialUrlState.filters.beneficiary ||
-                          initialUrlState.filters.focus || initialUrlState.filters.category);
+  const hasUrlFilters = !!(
+    initialUrlState.filters.locations?.length > 0 ||
+    initialUrlState.filters.beneficiaries?.length > 0 ||
+    initialUrlState.filters.focus?.length > 0 ||
+    initialUrlState.filters.categories?.length > 0 ||
+    initialUrlState.filters.grantsMin != null ||
+    initialUrlState.filters.grantsMax != null ||
+    initialUrlState.filters.establishedMin != null ||
+    initialUrlState.filters.establishedMax != null ||
+    initialUrlState.filters.unsolicitedOnly
+  );
   const [showFilters, setShowFilters] = useState(hasUrlFilters);
+  const [isFiltersCollapsed, setIsFiltersCollapsed] = useState(false);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [expandedId, setExpandedId] = useState(initialUrlState.expandedFunderId);
+
+  // Auto-collapse filters on scroll down
+  const lastScrollY = useRef(0);
+  useEffect(() => {
+    if (!showFilters) return;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // Collapse when scrolling down past threshold
+      if (currentScrollY > 150 && currentScrollY > lastScrollY.current + 50) {
+        setIsFiltersCollapsed(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showFilters]);
+
+  // Expand filters when toggled on
+  useEffect(() => {
+    if (showFilters) {
+      setIsFiltersCollapsed(false);
+    }
+  }, [showFilters]);
 
   const { favorites, toggleFavorite, isFavorite, favoritesCount } = useFavorites();
   const { savedSearches, saveSearch, deleteSearch } = useSavedSearches();
@@ -70,7 +120,7 @@ function FunderBrowser() {
   }, []);
 
   const clearFilters = useCallback(() => {
-    setFilters({ location: '', beneficiary: '', focus: '', category: '' });
+    setFilters(DEFAULT_FILTERS);
     setSearchTerm('');
   }, [setSearchTerm]);
 
@@ -83,24 +133,36 @@ function FunderBrowser() {
 
   const handleApplySavedSearch = useCallback((savedFilters) => {
     setFilters({
-      location: savedFilters.location || '',
-      beneficiary: savedFilters.beneficiary || '',
-      focus: savedFilters.focus || '',
-      category: savedFilters.category || '',
+      ...DEFAULT_FILTERS,
+      locations: savedFilters.locations || [],
+      beneficiaries: savedFilters.beneficiaries || [],
+      focus: savedFilters.focus || [],
+      categories: savedFilters.categories || [],
+      grantsMin: savedFilters.grantsMin ?? null,
+      grantsMax: savedFilters.grantsMax ?? null,
+      establishedMin: savedFilters.establishedMin ?? null,
+      establishedMax: savedFilters.establishedMax ?? null,
+      unsolicitedOnly: savedFilters.unsolicitedOnly || false,
     });
     if (savedFilters.searchTerm) {
       setSearchTerm(savedFilters.searchTerm);
     }
-  }, []);
+  }, [setSearchTerm]);
 
-  const hasActiveFilters =
-    searchTerm || filters.location || filters.beneficiary || filters.focus || filters.category;
-  const activeFilterCount = [
-    filters.location,
-    filters.beneficiary,
-    filters.focus,
-    filters.category,
-  ].filter(Boolean).length;
+  // Count active filters
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.locations.length > 0) count++;
+    if (filters.beneficiaries.length > 0) count++;
+    if (filters.focus.length > 0) count++;
+    if (filters.categories.length > 0) count++;
+    if (filters.grantsMin != null || filters.grantsMax != null) count++;
+    if (filters.establishedMin != null || filters.establishedMax != null) count++;
+    if (filters.unsolicitedOnly) count++;
+    return count;
+  }, [filters]);
+
+  const hasActiveFilters = searchTerm || activeFilterCount > 0;
 
   if (isLoading) {
     return (
@@ -152,30 +214,26 @@ function FunderBrowser() {
         favoritesCount={favoritesCount}
         showFavorites={showOnlyFavorites}
         onToggleFavorites={() => setShowOnlyFavorites(!showOnlyFavorites)}
-      />
+        savedSearches={savedSearches}
+        onApplySavedSearch={handleApplySavedSearch}
+        onDeleteSavedSearch={deleteSearch}
+      >
+        {showFilters && (
+          <FilterPanel
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            filterOptions={filterOptions}
+            onClearFilters={clearFilters}
+            hasActiveFilters={hasActiveFilters}
+            onSaveSearch={handleSaveSearch}
+            isCollapsed={isFiltersCollapsed}
+            onToggleCollapse={() => setIsFiltersCollapsed(!isFiltersCollapsed)}
+            activeFilterCount={activeFilterCount}
+          />
+        )}
+      </Header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
-        {/* Saved searches */}
-        <SavedSearches
-          searches={savedSearches}
-          onApply={handleApplySavedSearch}
-          onDelete={deleteSearch}
-        />
-
-        {/* Filter panel */}
-        {showFilters && (
-          <div className="mb-4">
-            <FilterPanel
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              filterOptions={filterOptions}
-              onClearFilters={clearFilters}
-              hasActiveFilters={hasActiveFilters}
-              onSaveSearch={handleSaveSearch}
-            />
-          </div>
-        )}
-
         {/* Results header */}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SortControls sortConfig={sortConfig} onSortChange={setSortConfig} />

@@ -1,4 +1,5 @@
 import { SearchIcon, FilterIcon, HeartIcon } from '../ui/Icons';
+import { SavedSearchesDropdown } from '../favorites/SavedSearches';
 
 export function Header({
   searchTerm,
@@ -11,6 +12,10 @@ export function Header({
   favoritesCount,
   showFavorites,
   onToggleFavorites,
+  savedSearches,
+  onApplySavedSearch,
+  onDeleteSavedSearch,
+  children, // Filter panel slot
 }) {
   return (
     <header className="sticky top-0 z-50 border-b border-brand-border bg-brand-dark">
@@ -46,6 +51,13 @@ export function Header({
               )}
             </button>
 
+            {/* Saved searches dropdown */}
+            <SavedSearchesDropdown
+              searches={savedSearches}
+              onApply={onApplySavedSearch}
+              onDelete={onDeleteSavedSearch}
+            />
+
             {/* Filters toggle */}
             <button
               onClick={onToggleFilters}
@@ -79,6 +91,13 @@ export function Header({
           />
         </div>
       </div>
+
+      {/* Filter panel slot - renders inside sticky header */}
+      {children && (
+        <div className="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
+          {children}
+        </div>
+      )}
     </header>
   );
 }
