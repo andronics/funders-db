@@ -6,7 +6,7 @@ import { Highlight, HighlightArrayItem } from '../ui/Highlight';
 
 export function FunderCard({ funder, expanded, onToggle, isFavorite, onToggleFavorite }) {
   return (
-    <article className="overflow-hidden rounded-lg border border-brand-border bg-brand-card">
+    <article className="rounded-lg border border-brand-border bg-brand-card">
       {/* Collapsed header - always visible */}
       <div
         onClick={onToggle}
