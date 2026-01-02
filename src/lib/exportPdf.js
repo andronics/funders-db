@@ -1,28 +1,23 @@
 import { formatCurrency } from './formatters';
+import { BRAND, PAGE, addHeader, addFooterToAllPages } from './pdfComponents';
 
 /**
- * Export funders to PDF (lazy loads jsPDF)
+ * Export funders to PDF as condensed list/table (lazy loads jsPDF)
  */
-export async function exportToPDF(funders, filename = 'funders.pdf') {
-  // Dynamically import jsPDF to reduce initial bundle size
+export async function exportListPDF(funders, filename) {
   const { default: jsPDF } = await import('jspdf');
   await import('jspdf-autotable');
 
   const doc = new jsPDF();
 
-  // Title
-  doc.setFontSize(18);
-  doc.setTextColor(126, 184, 162); // brand accent color
-  doc.text('UK Funders Database', 14, 22);
-
-  // Subtitle
-  doc.setFontSize(10);
-  doc.setTextColor(102, 102, 102);
-  doc.text(`${funders.length} funders - Generated ${new Date().toLocaleDateString('en-GB')}`, 14, 30);
+  // Header
+  const startY = addHeader(doc, {
+    subtitle: `${funders.length} funders`,
+  });
 
   // Table
   doc.autoTable({
-    startY: 38,
+    startY,
     head: [['Name', 'Est.', 'Grants', 'Focus Areas', 'Locations']],
     body: funders.map(f => [
       f.name || '',
@@ -36,18 +31,31 @@ export async function exportToPDF(funders, filename = 'funders.pdf') {
       cellPadding: 2,
     },
     headStyles: {
-      fillColor: [126, 184, 162],
-      textColor: [10, 10, 10],
+      fillColor: BRAND.accent,
+      textColor: BRAND.black,
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: [20, 20, 20],
+      fillColor: BRAND.dark,
     },
     bodyStyles: {
       textColor: [200, 200, 200],
     },
-    margin: { left: 14, right: 14 },
+    margin: { left: PAGE.margin, right: PAGE.margin },
   });
 
-  doc.save(filename);
+  // Add footers to all pages
+  addFooterToAllPages(doc);
+
+  const outputFilename = filename || `funders-list-${Date.now()}.pdf`;
+  doc.save(outputFilename);
+
+  return {
+    filename: outputFilename,
+    funderCount: funders.length,
+    pageCount: doc.internal.getNumberOfPages(),
+  };
 }
+
+// Keep old function name for backwards compatibility
+export const exportToPDF = exportListPDF;

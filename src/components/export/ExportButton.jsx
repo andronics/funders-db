@@ -1,30 +1,30 @@
 import { useState } from 'react';
 import { DownloadIcon } from '../ui/Icons';
 import { exportToCSV } from '../../lib/exportCsv';
-import { exportToPDF } from '../../lib/exportPdf';
-import { LabelExportModal } from './LabelExportModal';
+import { PdfExportModal } from './PdfExportModal';
 
 export function ExportButton({ funders, disabled }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [showLabelModal, setShowLabelModal] = useState(false);
+  const [showPdfModal, setShowPdfModal] = useState(false);
 
-  const handleExport = async (format) => {
+  const handleCsvExport = async () => {
     if (funders.length === 0) return;
 
     setIsExporting(true);
     try {
-      if (format === 'csv') {
-        exportToCSV(funders, `funders-${Date.now()}.csv`);
-      } else if (format === 'pdf') {
-        await exportToPDF(funders, `funders-${Date.now()}.pdf`);
-      }
+      exportToCSV(funders, `funders-${Date.now()}.csv`);
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
       setIsExporting(false);
       setIsOpen(false);
     }
+  };
+
+  const handlePdfClick = () => {
+    setShowPdfModal(true);
+    setIsOpen(false);
   };
 
   return (
@@ -47,40 +47,30 @@ export function ExportButton({ funders, disabled }) {
           />
 
           {/* Dropdown */}
-          <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-md border border-brand-border bg-brand-card py-1 shadow-lg">
+          <div className="absolute right-0 top-full z-50 mt-1 w-32 rounded-md border border-brand-border bg-brand-card py-1 shadow-lg">
             <button
-              onClick={() => handleExport('csv')}
+              onClick={handleCsvExport}
               disabled={isExporting}
               className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
             >
               {isExporting ? 'Exporting...' : 'CSV'}
             </button>
             <button
-              onClick={() => handleExport('pdf')}
+              onClick={handlePdfClick}
               disabled={isExporting}
               className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
             >
-              {isExporting ? 'Exporting...' : 'PDF'}
-            </button>
-            <button
-              onClick={() => {
-                setShowLabelModal(true);
-                setIsOpen(false);
-              }}
-              disabled={isExporting}
-              className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
-            >
-              LABELS
+              PDF
             </button>
           </div>
         </>
       )}
 
-      {/* Label Export Modal */}
-      {showLabelModal && (
-        <LabelExportModal
+      {/* PDF Export Modal */}
+      {showPdfModal && (
+        <PdfExportModal
           funders={funders}
-          onClose={() => setShowLabelModal(false)}
+          onClose={() => setShowPdfModal(false)}
         />
       )}
     </div>
