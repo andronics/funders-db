@@ -320,23 +320,23 @@ uk-funders-database/
 
 - **Offline support:** Service worker for full offline capability
 - **Data versioning:** Hash-based cache invalidation
-- **Export:** CSV/JSON download of filtered results
-- **Saved searches:** LocalStorage for bookmarking filter combinations
+- ~~**Export:** CSV/JSON download of filtered results~~ ✓ Done
+- ~~**Saved searches:** LocalStorage for bookmarking filter combinations~~ ✓ Done
 - **Analytics:** Privacy-respecting usage stats (Plausible/Fathom)
 
 ## Feature Roadmap
 
 Based on analysis of commercial platforms (Funds Online, GrantNav, My Funding Central, GrantFinder, Charity Excellence), here are features worth implementing:
 
-### Priority 1: Core Differentiators (MVP)
+### Priority 1: Core Differentiators (MVP) ✓ Complete
 
-| Feature | Commercial Equivalent | Our Approach |
-|---------|----------------------|--------------|
-| **Fuzzy search** | Most have exact match only | Fuse.js with typo tolerance |
-| **No paywall** | £200-500/year subscriptions | Completely free, no registration |
-| **Instant load** | Server-side pagination | Full dataset cached locally |
-| **Mobile-first** | Often desktop-oriented | Virtual scrolling, touch-friendly |
-| **Open data** | Proprietary databases | Full dataset downloadable |
+| Feature | Commercial Equivalent | Our Approach | Status |
+|---------|----------------------|--------------|--------|
+| **Fuzzy search** | Most have exact match only | Fuse.js with typo tolerance | ✓ |
+| **No paywall** | £200-500/year subscriptions | Completely free, no registration | ✓ |
+| **Instant load** | Server-side pagination | Full dataset cached locally | ✓ |
+| **Mobile-first** | Often desktop-oriented | Virtual scrolling, touch-friendly | ✓ |
+| **Open data** | Proprietary databases | Full dataset downloadable | ✓ |
 
 ### Priority 2: Search & Discovery
 
@@ -352,7 +352,7 @@ Based on analysis of commercial platforms (Funds Online, GrantNav, My Funding Ce
 - [ ] Recent searches (localStorage)
 - [ ] Search within results
 - [ ] Advanced search syntax (AND, OR, NOT, quotes for exact match)
-- [ ] Highlight search terms in results
+- [x] Highlight search terms in results
 
 **Discovery Features**
 - [ ] "Similar funders" recommendations based on focus/beneficiaries
@@ -363,22 +363,23 @@ Based on analysis of commercial platforms (Funds Online, GrantNav, My Funding Ce
 ### Priority 3: User Workflow Features
 
 **Shortlisting & Organisation**
-- [ ] Save funders to a shortlist (localStorage, no account needed)
+- [x] Save funders to a shortlist (localStorage, no account needed)
 - [ ] Multiple named lists ("Housing Project", "Youth Work")
 - [ ] Add personal notes to saved funders
 - [ ] Drag-and-drop reordering of shortlist
 - [ ] Export shortlist as CSV/PDF
 
 **Sharing & Collaboration**
-- [ ] Shareable search URLs (encode filters in URL params)
-- [ ] "Share this funder" button (copy link, email, social)
-- [ ] Print-friendly funder detail view
+- [x] Shareable search URLs (encode filters in URL params)
+- [x] "Share this funder" button (copy link, email)
+- [x] Print-friendly funder detail view (PDF Detailed export)
 - [ ] QR code for individual funder pages
 
 **Export Options**
-- [ ] Download current search results as CSV
+- [x] Download current search results as CSV
 - [ ] Download full dataset (JSONL, CSV, JSON)
-- [ ] Export funder detail as PDF
+- [x] Export funder detail as PDF (Detailed format)
+- [x] Export address labels as PDF (Labels format)
 - [ ] Copy funder details to clipboard (formatted for grant applications)
 
 ### Priority 4: Data Visualisation
@@ -440,35 +441,36 @@ Based on analysis of commercial platforms (Funds Online, GrantNav, My Funding Ce
 
 ### Implementation Phases
 
-**Phase 1: Core (Week 1-2)**
-- Virtual scrolling list
-- Fuzzy search with Fuse.js
-- IndexedDB caching
-- Basic filters (location, beneficiaries, focus, categories)
-- Sort options
+**Phase 1: Core** ✓ Complete
+- [x] Virtual scrolling list
+- [x] Fuzzy search with Fuse.js
+- [x] IndexedDB caching
+- [x] Basic filters (location, beneficiaries, focus, categories)
+- [x] Sort options
 
-**Phase 2: Enhanced Search (Week 3)**
-- Multi-select filters
-- Range sliders for amounts/years
-- Shareable URL state
-- Search highlighting
+**Phase 2: Enhanced Search** (Partial)
+- [ ] Multi-select filters
+- [ ] Range sliders for amounts/years
+- [x] Shareable URL state
+- [x] Search highlighting
 
-**Phase 3: User Features (Week 4)**
-- Shortlist functionality
-- Export to CSV
-- Recently viewed
-- Print-friendly view
+**Phase 3: User Features** (Partial)
+- [x] Shortlist functionality (favorites)
+- [x] Export to CSV
+- [x] Export to PDF (List, Detailed, Labels)
+- [ ] Recently viewed
+- [x] Print-friendly view (PDF Detailed)
 
-**Phase 4: Visualisation (Week 5-6)**
-- Summary statistics dashboard
-- Geographic map view
-- Funder comparison tool
+**Phase 4: Visualisation**
+- [ ] Summary statistics dashboard
+- [ ] Geographic map view
+- [ ] Funder comparison tool
 
-**Phase 5: Polish (Week 7-8)**
-- Accessibility audit and fixes
-- Performance optimisation
-- Documentation
-- Launch prep
+**Phase 5: Polish**
+- [ ] Accessibility audit and fixes
+- [ ] Performance optimisation
+- [ ] Documentation
+- [ ] Launch prep
 
 ---
 
