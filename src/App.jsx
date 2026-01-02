@@ -50,7 +50,7 @@ function FunderBrowser() {
                           initialUrlState.filters.focus || initialUrlState.filters.category);
   const [showFilters, setShowFilters] = useState(hasUrlFilters);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
-  const [expandedId, setExpandedId] = useState(null);
+  const [expandedId, setExpandedId] = useState(initialUrlState.expandedFunderId);
 
   const { favorites, toggleFavorite, isFavorite, favoritesCount } = useFavorites();
   const { savedSearches, saveSearch, deleteSearch } = useSavedSearches();

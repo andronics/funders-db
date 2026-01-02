@@ -11,6 +11,7 @@ const PARAM_KEYS = {
   category: 'category',
   sortField: 'sort',
   sortDir: 'dir',
+  funder: 'funder',
 };
 
 /**
@@ -31,6 +32,7 @@ export function getInitialStateFromUrl() {
       field: params.get(PARAM_KEYS.sortField) || 'name',
       direction: params.get(PARAM_KEYS.sortDir) || 'asc',
     },
+    expandedFunderId: params.get(PARAM_KEYS.funder) || null,
   };
 }
 

@@ -1,6 +1,7 @@
 import { formatCurrency } from '../../lib/formatters';
 import { HeartIcon, ChevronDownIcon } from '../ui/Icons';
 import { FunderCardExpanded } from './FunderCardExpanded';
+import { ShareButton } from './ShareButton';
 import { Highlight, HighlightArrayItem } from '../ui/Highlight';
 
 export function FunderCard({ funder, expanded, onToggle, isFavorite, onToggleFavorite }) {
@@ -61,8 +62,9 @@ export function FunderCard({ funder, expanded, onToggle, isFavorite, onToggleFav
           </div>
         </div>
 
-        {/* Right side: favorite + chevron */}
-        <div className="flex shrink-0 items-center gap-2">
+        {/* Right side: share + favorite + chevron */}
+        <div className="flex shrink-0 items-center gap-1">
+          <ShareButton funderId={funder.id} funderName={funder.name} />
           <button
             onClick={(e) => {
               e.stopPropagation();
