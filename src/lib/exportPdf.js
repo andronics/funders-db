@@ -32,14 +32,14 @@ export async function exportListPDF(funders, filename) {
     },
     headStyles: {
       fillColor: BRAND.accent,
-      textColor: BRAND.black,
+      textColor: BRAND.white,
       fontStyle: 'bold',
     },
     alternateRowStyles: {
-      fillColor: BRAND.dark,
+      fillColor: [245, 245, 245], // Light gray for white paper
     },
     bodyStyles: {
-      textColor: [200, 200, 200],
+      textColor: BRAND.black,
     },
     margin: { left: PAGE.margin, right: PAGE.margin },
   });

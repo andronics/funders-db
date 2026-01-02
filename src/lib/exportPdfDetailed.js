@@ -60,7 +60,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
   if (funder.established) {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...BRAND.muted);
+    doc.setTextColor(...BRAND.gray);
     const estText = `Est. ${funder.established}`;
     const estWidth = doc.getTextWidth(estText);
     doc.text(estText, PAGE.width - PAGE.margin - estWidth, 20);
@@ -73,7 +73,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
     y = drawSectionTitle(doc, 'About', y);
     y = drawWrappedText(doc, funder.information_general, y, {
       fontSize: 9,
-      color: BRAND.text,
+      color: BRAND.black,
       lineHeight: 4.5,
     });
     y += 6;
@@ -89,7 +89,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...BRAND.text);
+    doc.setTextColor(...BRAND.black);
 
     if (funder.contact.name) {
       doc.text(funder.contact.name, PAGE.margin, y);
@@ -98,7 +98,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
     if (funder.contact.email) {
       doc.setTextColor(...BRAND.accent);
       doc.text(funder.contact.email, PAGE.margin, y);
-      doc.setTextColor(...BRAND.text);
+      doc.setTextColor(...BRAND.black);
       y += 5;
     }
     if (funder.contact.telephone) {
@@ -108,7 +108,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
     if (funder.contact.address) {
       const addressLines = funder.contact.address.split('\n').filter(l => l.trim());
       doc.setFontSize(8);
-      doc.setTextColor(...BRAND.muted);
+      doc.setTextColor(...BRAND.gray);
       addressLines.forEach(line => {
         doc.text(line.trim(), PAGE.margin, y);
         y += 4;
@@ -124,14 +124,14 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...BRAND.muted);
+    doc.setTextColor(...BRAND.gray);
     doc.text('FINANCIALS', rightColX, fy);
     fy += 6;
 
     if (funder.financial.year_end) {
       doc.setFontSize(8);
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...BRAND.muted);
+      doc.setTextColor(...BRAND.gray);
       doc.text(`Year end: ${formatDate(funder.financial.year_end)}`, rightColX, fy);
       fy += 5;
     }
@@ -147,17 +147,17 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
 
     financialRows.forEach(row => {
       if (row.value != null) {
-        doc.setTextColor(...BRAND.muted);
+        doc.setTextColor(...BRAND.gray);
         doc.text(row.label, rightColX, fy);
 
-        doc.setTextColor(...(row.highlight ? BRAND.accent : BRAND.text));
+        doc.setTextColor(...(row.highlight ? BRAND.accent : BRAND.black));
         doc.text(formatCurrency(row.value), rightColX + 50, fy);
         fy += 5;
       }
     });
 
     if (funder.financial.organisations_supported) {
-      doc.setTextColor(...BRAND.muted);
+      doc.setTextColor(...BRAND.gray);
       doc.text(`Supporting ${funder.financial.organisations_supported} organisations`, rightColX, fy);
       fy += 5;
     }
@@ -170,7 +170,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
   y = checkPageBreak(doc, y, 25);
   if (funder.focus && funder.focus.length > 0) {
     y = drawSectionTitle(doc, 'Focus Areas', y);
-    y = drawTagList(doc, funder.focus, y, { color: BRAND.text });
+    y = drawTagList(doc, funder.focus, y, { color: BRAND.black });
     y += 6;
   }
 
@@ -178,7 +178,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
   y = checkPageBreak(doc, y, 25);
   if (funder.beneficiaries && funder.beneficiaries.length > 0) {
     y = drawSectionTitle(doc, 'Beneficiaries', y);
-    y = drawTagList(doc, funder.beneficiaries, y, { color: BRAND.text });
+    y = drawTagList(doc, funder.beneficiaries, y, { color: BRAND.black });
     y += 6;
   }
 
@@ -194,7 +194,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
   y = checkPageBreak(doc, y, 25);
   if (funder.categories && funder.categories.length > 0) {
     y = drawSectionTitle(doc, 'Funding Types', y);
-    y = drawTagList(doc, funder.categories, y, { color: BRAND.text });
+    y = drawTagList(doc, funder.categories, y, { color: BRAND.black });
     y += 6;
   }
 
@@ -204,7 +204,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
     y = drawSectionTitle(doc, 'Trustees', y);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...BRAND.muted);
+    doc.setTextColor(...BRAND.gray);
     const trusteesText = funder.trustees.join(', ');
     const lines = doc.splitTextToSize(trusteesText, PAGE.contentWidth);
     lines.forEach(line => {
@@ -218,7 +218,7 @@ function drawFunderPage(doc, funder, pageNum, totalFunders) {
   if (funder.url) {
     y = checkPageBreak(doc, y, 15);
     doc.setFontSize(8);
-    doc.setTextColor(...BRAND.muted);
+    doc.setTextColor(...BRAND.gray);
     doc.text('Source: ', PAGE.margin, y);
     doc.setTextColor(...BRAND.accent);
     doc.text(funder.url, PAGE.margin + 15, y);

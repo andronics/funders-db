@@ -2,15 +2,18 @@
  * Shared PDF components for consistent branding across all PDF exports
  */
 
-// Brand colors (RGB arrays for jsPDF)
+// Brand colors (RGB arrays for jsPDF) - print-friendly for white paper
 export const BRAND = {
-  accent: [126, 184, 162],     // Teal
-  accentDark: [100, 150, 130], // Darker teal for contrast
-  dark: [20, 20, 20],          // Background
-  text: [230, 230, 230],       // Light text
-  muted: [150, 150, 150],      // Muted text
-  white: [255, 255, 255],
-  black: [10, 10, 10],
+  // Brand colors (header/footer accents)
+  accent: [126, 184, 162],     // Teal - header title
+  accentDark: [80, 130, 110],  // Darker teal for better print contrast
+
+  // Print-friendly content colors (black/gray saves ink)
+  black: [0, 0, 0],            // Primary body text
+  darkGray: [51, 51, 51],      // Secondary text (#333)
+  gray: [102, 102, 102],       // Muted/subtitle text (#666)
+  lightGray: [153, 153, 153],  // Tertiary text (#999)
+  white: [255, 255, 255],      // Backgrounds if needed
 };
 
 // Page dimensions (A4 portrait)
@@ -35,7 +38,7 @@ export function addHeader(doc, { title = 'UK Funders Database', subtitle = '', s
 
   // Subtitle line
   doc.setFontSize(10);
-  doc.setTextColor(...BRAND.muted);
+  doc.setTextColor(...BRAND.gray);
 
   const subtitleParts = [];
   if (subtitle) subtitleParts.push(subtitle);
@@ -69,7 +72,7 @@ export function addFooter(doc, pageNum, totalPages) {
   const y = PAGE.height - 10;
 
   doc.setFontSize(8);
-  doc.setTextColor(...BRAND.muted);
+  doc.setTextColor(...BRAND.gray);
 
   // Page number on left
   doc.text(`Page ${pageNum} of ${totalPages}`, PAGE.margin, y);
@@ -87,7 +90,7 @@ export function addFooter(doc, pageNum, totalPages) {
 export function drawSectionTitle(doc, title, y) {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...BRAND.muted);
+  doc.setTextColor(...BRAND.gray);
   doc.text(title.toUpperCase(), PAGE.margin, y);
   return y + 6;
 }
@@ -99,7 +102,7 @@ export function drawSectionTitle(doc, title, y) {
 export function drawWrappedText(doc, text, y, options = {}) {
   const {
     fontSize = 10,
-    color = BRAND.text,
+    color = BRAND.black,
     maxWidth = PAGE.contentWidth,
     lineHeight = 5,
   } = options;
@@ -129,7 +132,7 @@ export function drawWrappedText(doc, text, y, options = {}) {
  * @returns {number} New Y position after tags
  */
 export function drawTagList(doc, items, y, options = {}) {
-  const { separator = ' • ', color = BRAND.text, fontSize = 9 } = options;
+  const { separator = ' • ', color = BRAND.darkGray, fontSize = 9 } = options;
 
   if (!items || items.length === 0) return y;
 
