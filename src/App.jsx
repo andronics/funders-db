@@ -237,7 +237,7 @@ function FunderBrowser() {
         {/* Results header */}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <SortControls sortConfig={sortConfig} onSortChange={setSortConfig} />
-          <ExportButton funders={filteredFunders} />
+          <ExportButton funders={filteredFunders} allFunders={funders} />
         </div>
 
         {/* Funders list */}

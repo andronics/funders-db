@@ -1,29 +1,20 @@
 import { useState } from 'react';
 import { DownloadIcon } from '../ui/Icons';
-import { exportToCSV } from '../../lib/exportCsv';
 import { PdfExportModal } from './PdfExportModal';
+import { DataExportModal } from './DataExportModal';
 
-export function ExportButton({ funders, disabled }) {
+export function ExportButton({ funders, allFunders, disabled }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
-
-  const handleCsvExport = async () => {
-    if (funders.length === 0) return;
-
-    setIsExporting(true);
-    try {
-      exportToCSV(funders, `funders-${Date.now()}.csv`);
-    } catch (error) {
-      console.error('Export failed:', error);
-    } finally {
-      setIsExporting(false);
-      setIsOpen(false);
-    }
-  };
+  const [showDataModal, setShowDataModal] = useState(false);
 
   const handlePdfClick = () => {
     setShowPdfModal(true);
+    setIsOpen(false);
+  };
+
+  const handleDataClick = () => {
+    setShowDataModal(true);
     setIsOpen(false);
   };
 
@@ -49,19 +40,18 @@ export function ExportButton({ funders, disabled }) {
           {/* Dropdown */}
           <div className="absolute right-0 top-full z-50 mt-1 w-32 rounded-md border border-brand-border bg-brand-card py-1 shadow-lg">
             <button
-              onClick={handleCsvExport}
-              disabled={isExporting}
-              className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
+              onClick={handleDataClick}
+              className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border"
             >
-              {isExporting ? 'Exporting...' : 'CSV'}
+              Export Data
             </button>
             <button
               onClick={handlePdfClick}
-              disabled={isExporting}
-              className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
+              className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border"
             >
-              PDF
+              Export PDF's
             </button>
+
           </div>
         </>
       )}
@@ -71,6 +61,15 @@ export function ExportButton({ funders, disabled }) {
         <PdfExportModal
           funders={funders}
           onClose={() => setShowPdfModal(false)}
+        />
+      )}
+
+      {/* Data Export Modal */}
+      {showDataModal && (
+        <DataExportModal
+          funders={funders}
+          allFunders={allFunders}
+          onClose={() => setShowDataModal(false)}
         />
       )}
     </div>
