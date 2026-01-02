@@ -48,18 +48,55 @@ export function useFunders({
       results = results.filter(f => searchResults.ids.has(f.id));
     }
 
-    // Apply filters
-    if (filters.location) {
-      results = results.filter(f => f.locations?.includes(filters.location));
+    // Multi-select filters (OR within category, AND across categories)
+    if (filters.locations?.length > 0) {
+      results = results.filter(f =>
+        filters.locations.some(loc => f.locations?.includes(loc))
+      );
     }
-    if (filters.beneficiary) {
-      results = results.filter(f => f.beneficiaries?.includes(filters.beneficiary));
+    if (filters.beneficiaries?.length > 0) {
+      results = results.filter(f =>
+        filters.beneficiaries.some(ben => f.beneficiaries?.includes(ben))
+      );
     }
-    if (filters.focus) {
-      results = results.filter(f => f.focus?.includes(filters.focus));
+    if (filters.focus?.length > 0) {
+      results = results.filter(f =>
+        filters.focus.some(foc => f.focus?.includes(foc))
+      );
     }
-    if (filters.category) {
-      results = results.filter(f => f.categories?.includes(filters.category));
+    if (filters.categories?.length > 0) {
+      results = results.filter(f =>
+        filters.categories.some(cat => f.categories?.includes(cat))
+      );
+    }
+
+    // Range filters - grants
+    if (filters.grantsMin != null) {
+      results = results.filter(f =>
+        (f.financial?.grants_to_organisations || 0) >= filters.grantsMin
+      );
+    }
+    if (filters.grantsMax != null) {
+      results = results.filter(f =>
+        (f.financial?.grants_to_organisations || 0) <= filters.grantsMax
+      );
+    }
+
+    // Range filters - established year
+    if (filters.establishedMin != null) {
+      results = results.filter(f =>
+        (f.established || 0) >= filters.establishedMin
+      );
+    }
+    if (filters.establishedMax != null) {
+      results = results.filter(f =>
+        (f.established || 0) <= filters.establishedMax
+      );
+    }
+
+    // Boolean filter - unsolicited applications
+    if (filters.unsolicitedOnly) {
+      results = results.filter(f => f.applications_unsolicited === true);
     }
 
     // Apply sort

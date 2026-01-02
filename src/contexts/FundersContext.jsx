@@ -32,11 +32,27 @@ export function FundersProvider({ children }) {
 
   // Compute filter options from funders array
   const computeFilterOptions = useCallback((fundersData) => {
+    // Extract grants values for range
+    const grants = fundersData
+      .map(f => f.financial?.grants_to_organisations)
+      .filter(g => g != null && g > 0);
+
+    // Extract established years for range
+    const years = fundersData
+      .map(f => f.established)
+      .filter(y => y != null && y > 1800 && y <= new Date().getFullYear());
+
     return {
       locations: [...new Set(fundersData.flatMap(f => f.locations || []))].sort(),
       beneficiaries: [...new Set(fundersData.flatMap(f => f.beneficiaries || []))].sort(),
       focus: [...new Set(fundersData.flatMap(f => f.focus || []))].sort(),
       categories: [...new Set(fundersData.flatMap(f => f.categories || []))].sort(),
+      grantsRange: grants.length > 0
+        ? { min: Math.min(...grants), max: Math.max(...grants) }
+        : { min: 0, max: 10000000 },
+      establishedRange: years.length > 0
+        ? { min: Math.min(...years), max: Math.max(...years) }
+        : { min: 1900, max: new Date().getFullYear() },
     };
   }, []);
 

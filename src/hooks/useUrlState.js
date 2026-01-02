@@ -1,18 +1,45 @@
 import { useEffect, useCallback, useRef } from 'react';
 
 /**
- * URL parameter keys
+ * URL parameter keys (short names for cleaner URLs)
  */
 const PARAM_KEYS = {
   search: 'q',
-  location: 'location',
-  beneficiary: 'beneficiary',
+  // Multi-select filters (arrays)
+  locations: 'loc',
+  beneficiaries: 'ben',
   focus: 'focus',
-  category: 'category',
+  categories: 'cat',
+  // Range filters
+  grantsMin: 'gmin',
+  grantsMax: 'gmax',
+  establishedMin: 'emin',
+  establishedMax: 'emax',
+  // Boolean
+  unsolicitedOnly: 'unsol',
+  // Sort
   sortField: 'sort',
   sortDir: 'dir',
+  // Funder detail
   funder: 'funder',
 };
+
+/**
+ * Parse array from comma-separated URL param
+ */
+function parseArray(value) {
+  if (!value) return [];
+  return value.split(',').filter(Boolean);
+}
+
+/**
+ * Parse number from URL param
+ */
+function parseNumber(value) {
+  if (!value) return null;
+  const num = Number(value);
+  return isNaN(num) ? null : num;
+}
 
 /**
  * Read initial state from URL parameters
@@ -23,10 +50,18 @@ export function getInitialStateFromUrl() {
   return {
     searchTerm: params.get(PARAM_KEYS.search) || '',
     filters: {
-      location: params.get(PARAM_KEYS.location) || '',
-      beneficiary: params.get(PARAM_KEYS.beneficiary) || '',
-      focus: params.get(PARAM_KEYS.focus) || '',
-      category: params.get(PARAM_KEYS.category) || '',
+      // Multi-select arrays
+      locations: parseArray(params.get(PARAM_KEYS.locations)),
+      beneficiaries: parseArray(params.get(PARAM_KEYS.beneficiaries)),
+      focus: parseArray(params.get(PARAM_KEYS.focus)),
+      categories: parseArray(params.get(PARAM_KEYS.categories)),
+      // Range filters
+      grantsMin: parseNumber(params.get(PARAM_KEYS.grantsMin)),
+      grantsMax: parseNumber(params.get(PARAM_KEYS.grantsMax)),
+      establishedMin: parseNumber(params.get(PARAM_KEYS.establishedMin)),
+      establishedMax: parseNumber(params.get(PARAM_KEYS.establishedMax)),
+      // Boolean
+      unsolicitedOnly: params.get(PARAM_KEYS.unsolicitedOnly) === '1',
     },
     sortConfig: {
       field: params.get(PARAM_KEYS.sortField) || 'name',
@@ -34,6 +69,44 @@ export function getInitialStateFromUrl() {
     },
     expandedFunderId: params.get(PARAM_KEYS.funder) || null,
   };
+}
+
+/**
+ * Add filters to URL params (only non-empty values)
+ */
+function addFiltersToParams(params, filters) {
+  // Multi-select arrays
+  if (filters.locations?.length > 0) {
+    params.set(PARAM_KEYS.locations, filters.locations.join(','));
+  }
+  if (filters.beneficiaries?.length > 0) {
+    params.set(PARAM_KEYS.beneficiaries, filters.beneficiaries.join(','));
+  }
+  if (filters.focus?.length > 0) {
+    params.set(PARAM_KEYS.focus, filters.focus.join(','));
+  }
+  if (filters.categories?.length > 0) {
+    params.set(PARAM_KEYS.categories, filters.categories.join(','));
+  }
+
+  // Range filters
+  if (filters.grantsMin != null) {
+    params.set(PARAM_KEYS.grantsMin, filters.grantsMin.toString());
+  }
+  if (filters.grantsMax != null) {
+    params.set(PARAM_KEYS.grantsMax, filters.grantsMax.toString());
+  }
+  if (filters.establishedMin != null) {
+    params.set(PARAM_KEYS.establishedMin, filters.establishedMin.toString());
+  }
+  if (filters.establishedMax != null) {
+    params.set(PARAM_KEYS.establishedMax, filters.establishedMax.toString());
+  }
+
+  // Boolean
+  if (filters.unsolicitedOnly) {
+    params.set(PARAM_KEYS.unsolicitedOnly, '1');
+  }
 }
 
 /**
@@ -45,22 +118,13 @@ export function useUrlState({ searchTerm, filters, sortConfig }) {
   const updateUrl = useCallback(() => {
     const params = new URLSearchParams();
 
-    // Only add non-empty values
+    // Search term
     if (searchTerm) {
       params.set(PARAM_KEYS.search, searchTerm);
     }
-    if (filters.location) {
-      params.set(PARAM_KEYS.location, filters.location);
-    }
-    if (filters.beneficiary) {
-      params.set(PARAM_KEYS.beneficiary, filters.beneficiary);
-    }
-    if (filters.focus) {
-      params.set(PARAM_KEYS.focus, filters.focus);
-    }
-    if (filters.category) {
-      params.set(PARAM_KEYS.category, filters.category);
-    }
+
+    // Add filters
+    addFiltersToParams(params, filters);
 
     // Only add sort if not default
     if (sortConfig.field !== 'name' || sortConfig.direction !== 'asc') {
@@ -96,10 +160,9 @@ export function generateShareableUrl(searchTerm, filters, sortConfig) {
   const params = new URLSearchParams();
 
   if (searchTerm) params.set(PARAM_KEYS.search, searchTerm);
-  if (filters.location) params.set(PARAM_KEYS.location, filters.location);
-  if (filters.beneficiary) params.set(PARAM_KEYS.beneficiary, filters.beneficiary);
-  if (filters.focus) params.set(PARAM_KEYS.focus, filters.focus);
-  if (filters.category) params.set(PARAM_KEYS.category, filters.category);
+
+  addFiltersToParams(params, filters);
+
   if (sortConfig.field !== 'name' || sortConfig.direction !== 'asc') {
     params.set(PARAM_KEYS.sortField, sortConfig.field);
     params.set(PARAM_KEYS.sortDir, sortConfig.direction);
