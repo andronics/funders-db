@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { DownloadIcon } from '../ui/Icons';
 import { exportToCSV } from '../../lib/exportCsv';
 import { exportToPDF } from '../../lib/exportPdf';
+import { LabelExportModal } from './LabelExportModal';
 
 export function ExportButton({ funders, disabled }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [showLabelModal, setShowLabelModal] = useState(false);
 
   const handleExport = async (format) => {
     if (funders.length === 0) return;
@@ -51,17 +53,35 @@ export function ExportButton({ funders, disabled }) {
               disabled={isExporting}
               className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
             >
-              {isExporting ? 'Exporting...' : 'Export as CSV'}
+              {isExporting ? 'Exporting...' : 'CSV'}
             </button>
             <button
               onClick={() => handleExport('pdf')}
               disabled={isExporting}
               className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
             >
-              {isExporting ? 'Exporting...' : 'Export as PDF'}
+              {isExporting ? 'Exporting...' : 'PDF'}
+            </button>
+            <button
+              onClick={() => {
+                setShowLabelModal(true);
+                setIsOpen(false);
+              }}
+              disabled={isExporting}
+              className="block w-full px-3 py-2 text-left text-sm text-brand-text hover:bg-brand-border disabled:opacity-50"
+            >
+              LABELS
             </button>
           </div>
         </>
+      )}
+
+      {/* Label Export Modal */}
+      {showLabelModal && (
+        <LabelExportModal
+          funders={funders}
+          onClose={() => setShowLabelModal(false)}
+        />
       )}
     </div>
   );
