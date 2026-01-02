@@ -1,5 +1,6 @@
 import { formatCurrency, formatDate } from '../../lib/formatters';
 import { ExternalLinkIcon, TwitterIcon, FacebookIcon, InstagramIcon } from '../ui/Icons';
+import { Highlight, HighlightArrayItem } from '../ui/Highlight';
 
 export function FunderCardExpanded({ funder }) {
   return (
@@ -10,7 +11,11 @@ export function FunderCardExpanded({ funder }) {
           <div className="sm:col-span-2 lg:col-span-3">
             <SectionTitle>About</SectionTitle>
             <p className="text-sm leading-relaxed text-gray-400">
-              {funder.information_general}
+              <Highlight
+                text={funder.information_general}
+                fieldName="information_general"
+                funderId={funder.id}
+              />
             </p>
           </div>
         )}
@@ -68,7 +73,12 @@ export function FunderCardExpanded({ funder }) {
         {funder.locations && funder.locations.length > 0 && (
           <div>
             <SectionTitle>Locations</SectionTitle>
-            <TagList tags={funder.locations} variant="accent" />
+            <HighlightedTagList
+              tags={funder.locations}
+              fieldName="locations"
+              funderId={funder.id}
+              variant="accent"
+            />
           </div>
         )}
 
@@ -76,7 +86,11 @@ export function FunderCardExpanded({ funder }) {
         {funder.beneficiaries && funder.beneficiaries.length > 0 && (
           <div>
             <SectionTitle>Beneficiaries</SectionTitle>
-            <TagList tags={funder.beneficiaries} />
+            <HighlightedTagList
+              tags={funder.beneficiaries}
+              fieldName="beneficiaries"
+              funderId={funder.id}
+            />
           </div>
         )}
 
@@ -84,7 +98,11 @@ export function FunderCardExpanded({ funder }) {
         {funder.categories && funder.categories.length > 0 && (
           <div>
             <SectionTitle>Funding Types</SectionTitle>
-            <TagList tags={funder.categories} />
+            <HighlightedTagList
+              tags={funder.categories}
+              fieldName="categories"
+              funderId={funder.id}
+            />
           </div>
         )}
 
@@ -93,7 +111,12 @@ export function FunderCardExpanded({ funder }) {
           <div>
             <SectionTitle>Trustees</SectionTitle>
             <p className="text-sm text-gray-400">
-              {funder.trustees.join(', ')}
+              {funder.trustees.map((trustee, index) => (
+                <span key={index}>
+                  {index > 0 && ', '}
+                  <Highlight text={trustee} fieldName="trustees" funderId={funder.id} />
+                </span>
+              ))}
             </p>
           </div>
         )}
@@ -150,7 +173,7 @@ function FinancialRow({ label, value, highlight }) {
   );
 }
 
-function TagList({ tags, variant = 'default' }) {
+function HighlightedTagList({ tags, fieldName, funderId, variant = 'default' }) {
   const variantStyles =
     variant === 'accent'
       ? 'text-brand-accent bg-brand-accent/10 border-brand-accent/20'
@@ -158,12 +181,18 @@ function TagList({ tags, variant = 'default' }) {
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      {tags.map((tag) => (
+      {tags.map((tag, index) => (
         <span
           key={tag}
           className={`rounded border px-2 py-0.5 text-[11px] ${variantStyles}`}
         >
-          {tag}
+          <HighlightArrayItem
+            text={tag}
+            fieldName={fieldName}
+            funderId={funderId}
+            arrayIndex={index}
+            highlightClassName="bg-brand-accent/50 text-white rounded-sm"
+          />
         </span>
       ))}
     </div>

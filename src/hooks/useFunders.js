@@ -1,5 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { searchIndex } from '../lib/searchIndex';
+import { useSearchContext } from '../contexts/SearchContext';
+import { useDebounce } from './useDebounce';
 
 /**
  * Hook for filtering and sorting funders
@@ -13,6 +15,23 @@ export function useFunders({
   favorites = [],
   showOnlyFavorites = false,
 }) {
+  const { setMatchesMap } = useSearchContext();
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 150);
+
+  const searchResults = useMemo(() => {
+    if (!debouncedSearchTerm || !index) return null;
+    return searchIndex(index, debouncedSearchTerm);
+  }, [index, debouncedSearchTerm]);
+
+  useEffect(() => {
+    if (searchResults?.matchesMap) {
+      setMatchesMap(searchResults.matchesMap);
+    } else {
+      setMatchesMap(new Map());
+    }
+  }, [searchResults, setMatchesMap]);
+
   return useMemo(() => {
     if (!funders) return [];
 
@@ -25,11 +44,8 @@ export function useFunders({
     }
 
     // Apply search
-    if (searchTerm && index) {
-      const matchingIds = searchIndex(index, searchTerm);
-      if (matchingIds) {
-        results = results.filter(f => matchingIds.has(f.id));
-      }
+    if (searchResults?.ids) {
+      results = results.filter(f => searchResults.ids.has(f.id));
     }
 
     // Apply filters
@@ -77,5 +93,5 @@ export function useFunders({
     });
 
     return results;
-  }, [funders, index, searchTerm, filters, sortConfig, favorites, showOnlyFavorites]);
+  }, [funders, searchResults, filters, sortConfig, favorites, showOnlyFavorites]);
 }

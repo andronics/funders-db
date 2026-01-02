@@ -1,6 +1,7 @@
 import { formatCurrency } from '../../lib/formatters';
 import { HeartIcon, ChevronDownIcon } from '../ui/Icons';
 import { FunderCardExpanded } from './FunderCardExpanded';
+import { Highlight, HighlightArrayItem } from '../ui/Highlight';
 
 export function FunderCard({ funder, expanded, onToggle, isFavorite, onToggleFavorite }) {
   return (
@@ -13,7 +14,9 @@ export function FunderCard({ funder, expanded, onToggle, isFavorite, onToggleFav
         <div className="min-w-0 flex-1">
           {/* Title row */}
           <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <h2 className="text-sm font-medium text-white sm:text-base">{funder.name}</h2>
+            <h2 className="text-sm font-medium text-white sm:text-base">
+              <Highlight text={funder.name} fieldName="name" funderId={funder.id} />
+            </h2>
             {funder.established && (
               <span className="rounded bg-brand-dark px-1.5 py-0.5 text-[10px] text-brand-muted">
                 Est. {funder.established}
@@ -24,7 +27,17 @@ export function FunderCard({ funder, expanded, onToggle, isFavorite, onToggleFav
           {/* Focus areas */}
           {funder.focus && funder.focus.length > 0 && (
             <p className="mb-2 text-xs leading-relaxed text-brand-muted sm:text-sm">
-              {funder.focus.slice(0, 3).join(' • ')}
+              {funder.focus.slice(0, 3).map((focusItem, index) => (
+                <span key={index}>
+                  {index > 0 && ' • '}
+                  <HighlightArrayItem
+                    text={focusItem}
+                    fieldName="focus"
+                    funderId={funder.id}
+                    arrayIndex={index}
+                  />
+                </span>
+              ))}
             </p>
           )}
 

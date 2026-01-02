@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.10.9",
-    "flexsearch": "^0.7.43",
+    "fuse.js": "^7.1.0",
     "idb": "^8.0.3",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
