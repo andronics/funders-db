@@ -1,8 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { FundersProvider, useFundersContext } from './contexts/FundersContext';
+import { SearchProvider, useSearchContext } from './contexts/SearchContext';
 import { useFunders } from './hooks/useFunders';
 import { useFavorites } from './hooks/useFavorites';
 import { useSavedSearches } from './hooks/useSavedSearches';
+import { getInitialStateFromUrl, useUrlState } from './hooks/useUrlState';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { FilterPanel } from './components/search/FilterPanel';
@@ -11,10 +13,15 @@ import { FunderList } from './components/funders/FunderList';
 import { ExportButton } from './components/export/ExportButton';
 import { SavedSearches } from './components/favorites/SavedSearches';
 
+// Read initial state from URL once at module load
+const initialUrlState = getInitialStateFromUrl();
+
 function App() {
   return (
     <FundersProvider>
-      <FunderBrowser />
+      <SearchProvider initialSearchTerm={initialUrlState.searchTerm}>
+        <FunderBrowser />
+      </SearchProvider>
     </FundersProvider>
   );
 }
@@ -31,15 +38,17 @@ function FunderBrowser() {
     totalCount
   } = useFundersContext();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    location: '',
-    beneficiary: '',
-    focus: '',
-    category: '',
-  });
-  const [sortConfig, setSortConfig] = useState({ field: 'name', direction: 'asc' });
-  const [showFilters, setShowFilters] = useState(false);
+  const { searchTerm, setSearchTerm } = useSearchContext();
+  const [filters, setFilters] = useState(initialUrlState.filters);
+  const [sortConfig, setSortConfig] = useState(initialUrlState.sortConfig);
+
+  // Sync state to URL
+  useUrlState({ searchTerm, filters, sortConfig });
+
+  // Auto-show filters if any are active from URL
+  const hasUrlFilters = !!(initialUrlState.filters.location || initialUrlState.filters.beneficiary ||
+                          initialUrlState.filters.focus || initialUrlState.filters.category);
+  const [showFilters, setShowFilters] = useState(hasUrlFilters);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
 
@@ -63,7 +72,7 @@ function FunderBrowser() {
   const clearFilters = useCallback(() => {
     setFilters({ location: '', beneficiary: '', focus: '', category: '' });
     setSearchTerm('');
-  }, []);
+  }, [setSearchTerm]);
 
   const handleSaveSearch = useCallback(() => {
     const name = prompt('Name this search:');
