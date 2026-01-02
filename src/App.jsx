@@ -186,6 +186,7 @@ function FunderBrowser() {
         <FunderList
           funders={filteredFunders}
           expandedId={expandedId}
+          initialExpandedFunderId={initialUrlState.expandedFunderId}
           onToggleExpand={(id) => setExpandedId(expandedId === id ? null : id)}
           isFavorite={isFavorite}
           onToggleFavorite={toggleFavorite}

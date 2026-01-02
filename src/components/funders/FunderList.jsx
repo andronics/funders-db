@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { FunderCard } from './FunderCard';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
@@ -6,6 +6,7 @@ import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 export function FunderList({
   funders,
   expandedId,
+  initialExpandedFunderId,
   onToggleExpand,
   isFavorite,
   onToggleFavorite,
@@ -19,7 +20,7 @@ export function FunderList({
     totalCount,
     hasMore,
     isLoadingMore,
-  } = useInfiniteScroll(funders, parentRef);
+  } = useInfiniteScroll(funders, parentRef, initialExpandedFunderId);
 
   const getItemSize = useCallback(
     (index) => {
@@ -42,6 +43,19 @@ export function FunderList({
   });
 
   const items = virtualizer.getVirtualItems();
+
+  // Scroll to initial expanded funder on mount
+  useEffect(() => {
+    if (!initialExpandedFunderId) return;
+
+    const index = visibleItems.findIndex(f => f.id === initialExpandedFunderId);
+    if (index === -1) return;
+
+    // Use setTimeout to ensure virtualizer has measured items
+    setTimeout(() => {
+      virtualizer.scrollToIndex(index, { align: 'start' });
+    }, 0);
+  }, []); // Only on mount
 
   if (funders.length === 0) {
     return (

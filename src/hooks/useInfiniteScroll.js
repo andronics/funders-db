@@ -7,9 +7,20 @@ const SCROLL_THRESHOLD = 200; // pixels from bottom
 /**
  * Hook for infinite scroll behavior
  * Shows a subset of items and loads more as user scrolls
+ * @param {Array} items - Full list of items
+ * @param {RefObject} scrollElementRef - Ref to scroll container
+ * @param {string|null} initialItemId - Optional item ID to ensure is visible on mount
  */
-export function useInfiniteScroll(items, scrollElementRef) {
-  const [visibleCount, setVisibleCount] = useState(INITIAL_ITEMS);
+export function useInfiniteScroll(items, scrollElementRef, initialItemId = null) {
+  // Calculate initial count to include target item if specified
+  const getInitialCount = () => {
+    if (!initialItemId) return INITIAL_ITEMS;
+    const index = items.findIndex(item => item.id === initialItemId);
+    if (index === -1) return INITIAL_ITEMS;
+    return Math.max(INITIAL_ITEMS, index + 10); // Load a few extra past the target
+  };
+
+  const [visibleCount, setVisibleCount] = useState(getInitialCount);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Track items reference to detect changes
